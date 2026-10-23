@@ -1,0 +1,8 @@
+fastapi==0.161.1
+uvicorn[standard]==0.54.0
+SQLAlchemy==2.1.6
+psycopg[binary]==3.3.6
+pydantic-settings==2.16.1
+pgvector==0.5.1
+# Cài torch bản CPU TRƯỚC (xem README/Dockerfile), nếu không pip sẽ tải bản CUDA vài GB
+sentence-transformers==6.2.0
