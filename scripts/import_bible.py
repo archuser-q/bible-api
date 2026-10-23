@@ -1,12 +1,3 @@
-"""Import dữ liệu Kinh Thánh từ file JSON của repo mdbible vào PostgreSQL.
-
-Cách chạy:
-    python -m scripts.import_bible data/mdbible/json/ESV.json
-
-Script chạy lại nhiều lần được: mỗi lần chạy sẽ xóa dữ liệu cũ rồi nạp lại.
-Sau khi import, chạy `python -m scripts.embed_verses` để tạo embedding cho semantic search.
-"""
-
 import json
 import re
 import sys
@@ -22,11 +13,10 @@ BATCH_SIZE = 5000
 
 
 def join_tokens(tokens: list[list[str]]) -> str:
-    """Mỗi câu trong JSON là danh sách token [chữ, mã Strong?]; ghép lại thành câu hoàn chỉnh."""
     text = " ".join(token[0] for token in tokens)
-    text = re.sub(r"\s+([,.;:?!)\]’—])", r"\1", text)  # bỏ khoảng trắng trước dấu câu
-    text = re.sub(r"([(\[—])\s+", r"\1", text)  # bỏ khoảng trắng sau ( [ —
-    text = re.sub(r"\s+-\s*", "-", text)  # cloven - footed -> cloven-footed
+    text = re.sub(r"\s+([,.;:?!)\]’—])", r"\1", text) 
+    text = re.sub(r"([(\[—])\s+", r"\1", text)
+    text = re.sub(r"\s+-\s*", "-", text)  
     return re.sub(r"\s{2,}", " ", text).strip()
 
 
@@ -54,7 +44,7 @@ def main(json_path: str) -> None:
                     }
                 )
 
-    with engine.begin() as conn:  # extension pgvector phải có trước khi tạo bảng
+    with engine.begin() as conn: 
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
     Base.metadata.create_all(engine)
 

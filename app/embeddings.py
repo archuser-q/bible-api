@@ -1,15 +1,9 @@
-"""Tạo embedding (vector) cho câu Kinh Thánh và câu hỏi tìm kiếm.
-
-Mô hình chỉ được nạp vào RAM ở lần dùng đầu tiên (lazy), nạp một lần rồi dùng lại.
-"""
-
 import threading
 
 from app.config import settings
 
 EMBEDDING_DIM = 384
 
-# bge-small-en-v1.5 khuyên thêm câu này trước CÂU HỎI (không thêm vào câu Kinh Thánh)
 QUERY_PROMPT = "Represent this sentence for searching relevant passages: "
 
 _model = None

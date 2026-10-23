@@ -1,4 +1,3 @@
-# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -10,15 +9,12 @@ htmlcov/
 build/
 dist/
 
-# Môi trường ảo & bí mật (giữ lại .env.example)
 .venv/
 venv/
 .env
 
-# Dữ liệu Kinh Thánh (ESV có bản quyền, tải lại bằng git clone)
 data/
 
-# Editor / hệ điều hành
 .idea/
 .vscode/
 *.log

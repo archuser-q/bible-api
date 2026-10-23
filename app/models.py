@@ -10,10 +10,9 @@ from app.embeddings import EMBEDDING_DIM
 class Book(Base):
     __tablename__ = "books"
 
-    # id = thứ tự sách trong Kinh Thánh (1 = Genesis ... 66 = Revelation)
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     name: Mapped[str] = mapped_column(String(64), unique=True)
-    testament: Mapped[str] = mapped_column(String(2))  # "OT" (Cựu Ước) | "NT" (Tân Ước)
+    testament: Mapped[str] = mapped_column(String(2))
     chapter_count: Mapped[int]
 
     verses: Mapped[list["Verse"]] = relationship(back_populates="book")
@@ -28,14 +27,12 @@ class Verse(Base):
     verse: Mapped[int]
     text: Mapped[str] = mapped_column(Text)
 
-    # Cột do PostgreSQL tự tính, dùng cho full-text search
     search_vector: Mapped[str] = mapped_column(
         TSVECTOR,
         Computed("to_tsvector('english', text)", persisted=True),
         deferred=True,
     )
 
-    # Vector ý nghĩa của câu, dùng cho semantic search (tạo bằng scripts.embed_verses)
     embedding: Mapped[list[float] | None] = mapped_column(
         Vector(EMBEDDING_DIM), nullable=True, deferred=True
     )
