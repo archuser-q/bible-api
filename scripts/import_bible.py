@@ -2,7 +2,7 @@ import json
 import re
 import sys
 
-from database import Base, SessionLocal, engine
+from database import Base, SessionLocal, engine, init_db
 from models import Book, Verse
 
 
@@ -20,7 +20,7 @@ def main(path):
         data = json.load(f)
 
     Base.metadata.drop_all(engine, tables=[Verse.__table__, Book.__table__])
-    Base.metadata.create_all(engine)
+    init_db()
 
     with SessionLocal() as db:
         for book_id, (name, chapters) in enumerate(data["books"].items(), start=1):

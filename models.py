@@ -1,10 +1,22 @@
 from datetime import datetime
 
-from sqlalchemy import Computed, DateTime, ForeignKey, Index, String, Text, UniqueConstraint, func
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import (
+    Computed,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
+from embeddings import EMBEDDING_DIM
+
 
 class Book(Base):
     __tablename__ = "books"
@@ -27,6 +39,8 @@ class Verse(Base):
     search_vector: Mapped[str] = mapped_column(
         TSVECTOR, Computed("to_tsvector('english', text)", persisted=True), deferred=True
     )
+
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIM), deferred=True)
 
     __table_args__ = (
         UniqueConstraint("book_id", "chapter", "verse"),

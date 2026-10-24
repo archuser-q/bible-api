@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from database import get_db
+from embeddings import embed_query
 from models import Book, Verse
 
 router = APIRouter(prefix="/search", tags=["search"])
@@ -15,6 +16,7 @@ class SearchHit(BaseModel):
     chapter: int
     verse: int
     text: str
+    score: float | None = None
 
 
 class SearchResult(BaseModel):
@@ -51,5 +53,34 @@ def search_verses(
         "results": [
             {"book_id": b, "book_name": n, "chapter": c, "verse": v, "text": t}
             for b, n, c, v, t in rows
+        ],
+    }
+
+@router.get("/semantic", response_model=SearchResult)
+def semantic_search(
+    q: str = Query(min_length=2, description="vd: verses about anxiety"),
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    query_vector = embed_query(q)  # đổi câu hỏi thành vector
+    distance = Verse.embedding.cosine_distance(query_vector)  # khoảng cách: càng nhỏ càng giống
+
+    rows = db.execute(
+        select(Verse.book_id, Book.name, Verse.chapter, Verse.verse, Verse.text, distance)
+        .join(Book, Book.id == Verse.book_id)
+        .where(Verse.embedding.is_not(None))
+        .order_by(distance)
+        .limit(limit)
+    ).all()
+
+    if not rows:
+        raise HTTPException(status_code=503, detail="Chưa có embedding, hãy chạy: python -m scripts.embed_verses")
+
+    return {
+        "query": q,
+        "total": len(rows),
+        "results": [
+            {"book_id": b, "book_name": n, "chapter": c, "verse": v, "text": t, "score": round(1 - d, 4)}
+            for b, n, c, v, t, d in rows
         ],
     }
