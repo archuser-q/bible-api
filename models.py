@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
+from sqlalchemy import Computed, DateTime, ForeignKey, Index, String, Text, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
-
 
 class Book(Base):
     __tablename__ = "books"
@@ -24,7 +24,14 @@ class Verse(Base):
     verse: Mapped[int]
     text: Mapped[str] = mapped_column(Text)
 
-    __table_args__ = (UniqueConstraint("book_id", "chapter", "verse"),)
+    search_vector: Mapped[str] = mapped_column(
+        TSVECTOR, Computed("to_tsvector('english', text)", persisted=True), deferred=True
+    )
+
+    __table_args__ = (
+        UniqueConstraint("book_id", "chapter", "verse"),
+        Index("ix_verses_search", "search_vector", postgresql_using="gin"),
+    )
 
 class Note(Base):
     __tablename__ = "notes"
