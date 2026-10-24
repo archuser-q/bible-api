@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import notes
+import rag
 import search
 from database import Base, engine, get_db
 from models import Book, Verse
@@ -13,6 +14,7 @@ Base.metadata.create_all(engine)
 app = FastAPI(title="Bible API")
 app.include_router(notes.router)
 app.include_router(search.router)
+app.include_router(rag.router)
 
 class BookOut(BaseModel):
     id: int
