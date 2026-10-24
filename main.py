@@ -3,10 +3,14 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database import get_db
+import notes
+from database import Base, engine, get_db
 from models import Book, Verse
 
+Base.metadata.create_all(engine)
+
 app = FastAPI(title="Bible API")
+app.include_router(notes.router)
 
 class BookOut(BaseModel):
     id: int

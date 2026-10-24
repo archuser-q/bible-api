@@ -19,7 +19,7 @@ def main(path):
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
-    Base.metadata.drop_all(engine)  # xóa bảng cũ -> chạy lại nhiều lần không bị trùng
+    Base.metadata.drop_all(engine, tables=[Verse.__table__, Book.__table__])
     Base.metadata.create_all(engine)
 
     with SessionLocal() as db:
