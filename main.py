@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+import agent
 import notes
 import rag
 import search
@@ -15,6 +16,7 @@ app = FastAPI(title="Bible API")
 app.include_router(notes.router)
 app.include_router(search.router)
 app.include_router(rag.router)
+app.include_router(agent.router)
 
 class BookOut(BaseModel):
     id: int
