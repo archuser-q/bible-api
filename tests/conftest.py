@@ -1,13 +1,16 @@
 import os
 
 os.environ["POSTGRES_DB"] = os.getenv("TEST_POSTGRES_DB", "bible_test")
-os.environ.setdefault("OPENROUTER_API_KEY", "test-key")
+os.environ["OPENROUTER_API_KEY"] = "test-key" 
+os.environ["APP_API_KEY"] = "test-app-key"
+os.environ["RATE_LIMIT_PER_MINUTE"] = "1000"
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import delete
 
 import search
+import security
 from database import Base, SessionLocal, engine, init_db
 from main import app
 from models import Book, Note, Verse
@@ -66,8 +69,14 @@ def clean_notes_and_fake_model(monkeypatch):
         db.execute(delete(Note))
         db.commit()
     monkeypatch.setattr(search, "embed_query", fake_embed_query)
+    security._history.clear()
 
 
 @pytest.fixture
 def client():
+    return TestClient(app, headers={"X-API-Key": "test-app-key"})
+
+
+@pytest.fixture
+def anonymous_client():
     return TestClient(app)

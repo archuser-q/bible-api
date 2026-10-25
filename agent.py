@@ -3,7 +3,7 @@ import os
 import time
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
@@ -19,8 +19,9 @@ from database import SessionLocal
 from llm import MODELS, LLMError
 from models import Book, Note, Verse
 from search import semantic_search
+from security import rate_limit, require_api_key
 
-router = APIRouter(prefix="/agent", tags=["agent"])
+router = APIRouter(prefix="/agent", tags=["agent"], dependencies=[Depends(require_api_key), Depends(rate_limit)])
 logger = logging.getLogger("uvicorn.error")
 
 SYSTEM_PROMPT = """You are a Bible study assistant with tools.

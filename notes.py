@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import Note, Verse
+from security import require_api_key
 
-router = APIRouter(prefix="/notes", tags=["notes"])
+router = APIRouter(prefix="/notes", tags=["notes"], dependencies=[Depends(require_api_key)])
 
 class NoteCreate(BaseModel):
     book_id: int

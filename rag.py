@@ -10,8 +10,9 @@ from database import get_db
 from llm import LLMError, chat
 from models import Verse
 from search import semantic_search
+from security import rate_limit, require_api_key
 
-router = APIRouter(prefix="/ask", tags=["ask (RAG)"])
+router = APIRouter(prefix="/ask", tags=["ask (RAG)"], dependencies=[Depends(require_api_key), Depends(rate_limit)])
 logger = logging.getLogger("uvicorn.error")  # in log ra cùng chỗ với log của server
 
 SYSTEM_PROMPT = """You are a thoughtful Bible teacher.
