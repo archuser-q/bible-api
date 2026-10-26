@@ -7,16 +7,17 @@ import agent
 import notes
 import rag
 import search
-from database import Base, engine, get_db
+from database import get_db, init_db
 from models import Book, Verse
 
-Base.metadata.create_all(engine)
+init_db()
 
 app = FastAPI(title="Bible API")
 app.include_router(notes.router)
 app.include_router(search.router)
 app.include_router(rag.router)
 app.include_router(agent.router)
+
 
 class BookOut(BaseModel):
     id: int
@@ -34,6 +35,7 @@ class ChapterOut(BaseModel):
     book: BookOut
     chapter: int
     verses: list[VerseOut]
+
 
 @app.get("/health")
 def health():
